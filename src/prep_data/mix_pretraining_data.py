@@ -29,5 +29,5 @@ def combine_json(file_list, name='audioset_librispeech960'):
 
 if __name__ == '__main__':
     audioset_data = '/data/sls/scratch/yuangong/aed-pc/src/enhance_label/datafiles_local/whole_train_data.json'
-    librispeech_data = '/data/sls/scratch/yuangong/sslast2/src/prep_data/librispeech_tr960_cut.json'
+    librispeech_data = '/git/ssast/src/prep_data/librispeech_tr960_cut.json'
     combine_json([audioset_data, librispeech_data], name='audioset_librispeech')

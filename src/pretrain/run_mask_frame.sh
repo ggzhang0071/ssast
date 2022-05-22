@@ -48,6 +48,7 @@ freqm=0
 timem=0
 # no mixup training
 mixup=0
+timestamp=$(date +%Y%m%d-%H%M%S)
 
 exp_dir=./exp/mask01-${model_size}-f${fshape}-t${tshape}-b$batch_size-lr${lr}-m${mask_patch}-${task}-${dataset}
 
@@ -59,4 +60,4 @@ CUDA_CACHE_DISABLE=1 python -W ignore ../run.py --dataset ${dataset} \
 --tstride $tstride --fstride $fstride --fshape ${fshape} --tshape ${tshape} \
 --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --target_length ${target_length} --num_mel_bins ${num_mel_bins} \
 --model_size ${model_size} --mask_patch ${mask_patch} --n-print-steps 100 \
---task ${task} --lr_patience ${lr_patience} --epoch_iter 4000
+--task ${task} --lr_patience ${lr_patience} --epoch_iter 4000 | tee ${exp_dir}/$timestamp.log

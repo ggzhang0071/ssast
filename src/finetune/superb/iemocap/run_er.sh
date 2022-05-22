@@ -10,10 +10,7 @@
 #SBATCH --job-name="s3p-emo"
 #SBATCH --output=./log_%j.txt
 
-set -x
-. /data/sls/scratch/share-201907/slstoolchainrc
-source /data/sls/scratch/yuangong/ssast/venvssast/bin/activate
-export TORCH_HOME=.
+
 mkdir exp
 
 # frame based SSAST

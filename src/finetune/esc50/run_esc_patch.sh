@@ -10,11 +10,6 @@
 #SBATCH --job-name="ast-esc50"
 #SBATCH --output=./slurm_log/log_%j.txt
 
-set -x
-# comment this line if not running on sls cluster
-. /data/sls/scratch/share-201907/slstoolchainrc
-source ../../../venvssast/bin/activate
-export TORCH_HOME=../../pretrained_models
 mkdir exp
 
 # prep esc50 dataset and download the pretrained model
@@ -31,9 +26,9 @@ else
     wget https://www.dropbox.com/s/ewrzpco95n9jdz6/SSAST-Base-Patch-400.pth?dl=1 -O SSAST-Base-Patch-400.pth
 fi
 
-pretrain_exp=
+pretrain_exp="/git/ssast/pretrained_model"
 pretrain_model=SSAST-Base-Patch-400
-pretrain_path=./${pretrain_exp}/${pretrain_model}.pth
+pretrain_path=${pretrain_exp}/${pretrain_model}.pth
 
 dataset=esc50
 dataset_mean=-6.6268077
@@ -64,11 +59,12 @@ do
   echo 'now process fold'${fold}
 
   exp_dir=${base_exp_dir}/fold${fold}
+  timestamp=$(date +%Y%m%d-%H%M%S)
 
-  tr_data=./data/datafiles/esc_train_data_${fold}.json
-  te_data=./data/datafiles/esc_eval_data_${fold}.json
+  tr_data=/git/datasets/esc50/datafiles/esc_train_data_${fold}.json
+  te_data=/git/datasets/esc50/datafiles/esc_eval_data_${fold}.json
 
-  CUDA_CACHE_DISABLE=1 python -W ignore ../../run.py --dataset ${dataset} \
+  CUDA_CACHE_DISABLE=1 python -W ignore -m  pdb ../../run.py --dataset ${dataset} \
   --data-train ${tr_data} --data-val ${te_data} --exp-dir $exp_dir \
   --label-csv ./data/esc_class_labels_indices.csv --n_class 50 \
   --lr $lr --n-epochs ${epoch} --batch-size $batch_size --save_model False \
@@ -78,7 +74,7 @@ do
   --pretrained_mdl_path ${pretrain_path} \
   --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --target_length ${target_length} \
   --num_mel_bins 128 --head_lr ${head_lr} --noise ${noise} \
-  --lrscheduler_start 6 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss CE --metrics acc
+  --lrscheduler_start 6 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss CE --metrics acc |tee ${exp_dir}/${timestamp}.log
 done
 
 python ./get_esc_result.py --exp_path ${base_exp_dir}

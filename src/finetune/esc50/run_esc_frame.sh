@@ -10,11 +10,7 @@
 #SBATCH --job-name="ast-esc50"
 #SBATCH --output=./slurm_log/log_%j.txt
 
-set -x
-# comment this line if not running on sls cluster
-. /data/sls/scratch/share-201907/slstoolchainrc
-source ../../../venvssast/bin/activate
-export TORCH_HOME=../../pretrained_models
+
 mkdir exp
 
 # prep esc50 dataset and download the pretrained model
@@ -24,14 +20,7 @@ then
 else
     python prep_esc50.py
 fi
-if [ -e SSAST-Base-Frame-400.pth ]
-then
-    echo "pretrained model already downloaded."
-else
-    wget https://www.dropbox.com/s/nx6nl4d4bl71sm8/SSAST-Base-Frame-400.pth?dl=1 -O SSAST-Base-Frame-400.pth
-fi
-
-pretrain_exp=
+pretrain_exp="/git/ssast/pretrained_model"
 pretrain_model=SSAST-Base-Frame-400
 
 dataset=esc50
@@ -56,17 +45,18 @@ task=ft_avgtok
 model_size=base
 head_lr=1
 
-pretrain_path=./${pretrain_exp}/${pretrain_model}.pth
+pretrain_path=${pretrain_exp}/${pretrain_model}.pth
 base_exp_dir=./exp/test01-${dataset}-f${fstride}-${fshape}-t${tstride}-${tshape}-b${batch_size}-lr${lr}-${task}-${model_size}-${pretrain_exp}-${pretrain_model}-${head_lr}x-noise${noise}
 
 for((fold=1;fold<=5;fold++));
 do
+  timestamp=$(date +%Y%m%d-%H%M%S)
   echo 'now process fold'${fold}
 
   exp_dir=${base_exp_dir}/fold${fold}
 
-  tr_data=./data/datafiles/esc_train_data_${fold}.json
-  te_data=./data/datafiles/esc_eval_data_${fold}.json
+  tr_data=/git/datasets/esc50/datafiles/esc_train_data_${fold}.json
+  te_data=/git/datasets/esc50/datafiles/esc_eval_data_${fold}.json
 
   CUDA_CACHE_DISABLE=1 python -W ignore ../../run.py --dataset ${dataset} \
   --data-train ${tr_data} --data-val ${te_data} --exp-dir $exp_dir \
@@ -78,7 +68,7 @@ do
   --pretrain False --pretrained_mdl_path ${pretrain_path} \
   --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --target_length ${target_length} \
   --num_mel_bins 128 --head_lr ${head_lr} --noise ${noise} \
-  --lrscheduler_start 6 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss CE --metrics acc
+  --lrscheduler_start 6 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss CE --metrics acc  | tee ${exp_dir}/${timestamp}.txt
 done
 
 python ./get_esc_result.py --exp_path ${base_exp_dir}

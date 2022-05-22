@@ -31,7 +31,7 @@ else
     wget https://www.dropbox.com/s/nx6nl4d4bl71sm8/SSAST-Base-Frame-400.pth?dl=1 -O SSAST-Base-Frame-400.pth
 fi
 
-pretrain_exp=
+pretrain_exp="/git/ssast/pretrained_model"
 pretrain_model=SSAST-Base-Frame-400
 
 dataset=speechcommands
@@ -55,14 +55,16 @@ tshape=2
 fstride=128
 tstride=1
 
+timestamp=$(date +%Y%m%d-%H%M%S)
+
 task=ft_avgtok
 model_size=base
 head_lr=1
 
-pretrain_path=./${pretrain_exp}/${pretrain_model}.pth
+pretrain_path=${pretrain_exp}/${pretrain_model}.pth
 exp_dir=./exp/test01-${dataset}-f$fstride-t$tstride-b$batch_size-lr${lr}-${task}-${model_size}-$pretrain_exp-${pretrain_model}-${head_lr}x-noise${noise}
 
-CUDA_CACHE_DISABLE=1 python -W ignore ../../run.py --dataset ${dataset} \
+CUDA_CACHE_DISABLE=1 python -W ignore  ../../run.py --dataset ${dataset} \
 --data-train ${tr_data} --data-val ${val_data} --data-eval ${eval_data} --exp-dir $exp_dir \
 --label-csv ./data/speechcommands_class_labels_indices.csv --n_class 35 \
 --lr $lr --n-epochs ${epoch} --batch-size $batch_size --save_model False \
@@ -72,4 +74,4 @@ CUDA_CACHE_DISABLE=1 python -W ignore ../../run.py --dataset ${dataset} \
 --pretrained_mdl_path ${pretrain_path} \
 --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --target_length ${target_length} \
 --num_mel_bins 128 --head_lr ${head_lr} --noise ${noise} \
---lrscheduler_start 5 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss BCE --metrics acc
+--lrscheduler_start 5 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss BCE --metrics acc  | tee ${exp_dir}/log.txt
