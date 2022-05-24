@@ -48,7 +48,7 @@ tshape=16
 fstride=10
 tstride=10
 
-task=ft_avgtok
+task=pretrain
 model_size=base
 head_lr=1
 
@@ -66,7 +66,7 @@ do
 
   CUDA_CACHE_DISABLE=1 python -W ignore -m  pdb ../../run.py --dataset ${dataset} \
   --data-train ${tr_data} --data-val ${te_data} --exp-dir $exp_dir \
-  --label-csv ./data/esc_class_labels_indices.csv --n_class 50 \
+  --label-csv ./data/esc_class_labels_indices.csv --n_class 2 \
   --lr $lr --n-epochs ${epoch} --batch-size $batch_size --save_model False \
   --freqm $freqm --timem $timem --mixup ${mixup} --bal ${bal} \
   --tstride $tstride --fstride $fstride --fshape ${fshape} --tshape ${tshape} --warmup False --task ${task} \
@@ -77,4 +77,4 @@ do
   --lrscheduler_start 6 --lrscheduler_step 1 --lrscheduler_decay 0.85 --wa False --loss CE --metrics acc |tee ${exp_dir}/${timestamp}.log
 done
 
-python ./get_esc_result.py --exp_path ${base_exp_dir}
+#python ./get_esc_result.py --exp_path ${base_exp_dir}

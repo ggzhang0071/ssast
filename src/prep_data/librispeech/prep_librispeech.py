@@ -57,9 +57,4 @@ walk(librispeech100_path, 'librispeech_tr500_cut')
 librispeech100_path = '/git/datasets/librispeech/train-clean-360/'
 walk(librispeech100_path, 'librispeech_tr360_cut')
 
-
-
-
 combine_json(['librispeech_tr500_cut', 'librispeech_tr360_cut', 'librispeech_tr100_cut'], name='librispeech_tr960_cut')
-
-

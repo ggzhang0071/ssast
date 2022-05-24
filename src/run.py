@@ -11,6 +11,7 @@ import ast
 import pickle
 import sys
 import time
+from webbrowser import get
 import torch
 from torch.utils.data import WeightedRandomSampler
 basepath = os.path.dirname(os.path.dirname(sys.path[0]))
@@ -20,6 +21,7 @@ from models import ASTModel
 import numpy as np
 from traintest import train, validate
 from traintest_mask import trainmask
+from traintest_old import get_test_labels
 
 print("I am process %s, running on %s: starting (%s)" % (os.getpid(), os.uname()[1], time.asctime()))
 
@@ -31,8 +33,8 @@ parser.add_argument("--label-csv", type=str, default='', help="csv with class la
 parser.add_argument("--n_class", type=int, default=527, help="number of classes")
 
 parser.add_argument("--dataset", type=str, help="the dataset used for training")
-parser.add_argument("--dataset_mean", type=float, help="the dataset mean, used for input normalization")
-parser.add_argument("--dataset_std", type=float, help="the dataset std, used for input normalization")
+parser.add_argument("--dataset_mean", type=float, default=-2.0259456505300477e-05, help="the dataset mean, used for input normalization")
+parser.add_argument("--dataset_std", type=float,default=0.019023671746253967, help="the dataset std, used for input normalization")
 parser.add_argument("--target_length", type=int, help="the input length in frames")
 parser.add_argument("--num_mel_bins", type=int, default=128, help="number of input mel bins")
 
@@ -183,4 +185,6 @@ if args.data_eval != None:
     print("Accuracy: {:.6f}".format(eval_acc))
     print("AUC: {:.6f}".format(eval_mAUC))
     np.savetxt(args.exp_dir + '/eval_result.csv', [val_acc, val_mAUC, eval_acc, eval_mAUC])
+
+    get_test_labels(audio_model, eval_loader, args)
 

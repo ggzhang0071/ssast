@@ -20,6 +20,13 @@ then
 else
     python prep_esc50.py
 fi
+if [ -e SSAST-Base-Patch-400.pth ]
+then
+    echo "pretrained model already downloaded."
+else
+    wget https://www.dropbox.com/s/ewrzpco95n9jdz6/SSAST-Base-Patch-400.pth?dl=1 -O SSAST-Base-Patch-400.pth
+fi
+
 pretrain_exp="/git/ssast/pretrained_model"
 pretrain_model=SSAST-Base-Frame-400
 
